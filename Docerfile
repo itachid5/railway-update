@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 ENV COLORTERM=truecolor
 
-# প্রয়োজনীয় প্যাকেজ ইন্সটল করা হচ্ছে
+# প্রয়োজনীয় প্যাকেজ ইন্সটল করা হচ্ছে (sudo সহ, যাতে আপনি পরে ভেতরে ব্যবহার করতে পারেন)
 RUN apt-get update && apt-get install -y \
     openssh-server sudo curl wget git nano \
     && rm -rf /var/lib/apt/lists/*
@@ -19,12 +19,12 @@ RUN mkdir /var/run/sshd && \
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
     echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
 
-# লোকাল ফোল্ডার থেকে start.sh ফাইলটি কন্টেইনারে কপি করা হচ্ছে
+# start.sh ফাইলটি কপি করা হচ্ছে
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-USER devuser
-WORKDIR /home/devuser
+# এখানে USER devuser লাইনটি বাদ দেওয়া হয়েছে
+WORKDIR /root
 
 EXPOSE 22
 
