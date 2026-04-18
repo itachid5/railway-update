@@ -19,7 +19,11 @@ RUN mkdir -p /var/run/sshd && \
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
     echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
 
-# start.sh স্ক্রিপ্ট সরাসরি Dockerfile-এর ভেতরেই তৈরি করা হচ্ছে (Windows CRLF সমস্যা এড়াতে)
+# টার্মিনালে হোস্টনেম phoenix দেখানোর জন্য প্রম্পট (PS1) সেট করা হচ্ছে
+RUN echo "export PS1='\[\e[32m\]\u@phoenix\[\e[m\]:\[\e[34m\]\w\[\e[m\]\$ '" >> /home/devuser/.bashrc && \
+    echo "export PS1='\[\e[31m\]\u@phoenix\[\e[m\]:\[\e[34m\]\w\[\e[m\]# '" >> /root/.bashrc
+
+# start.sh স্ক্রিপ্ট সরাসরি Dockerfile-এর ভেতরেই তৈরি করা হচ্ছে
 RUN cat > /start.sh <<'SH'
 #!/bin/bash
 set -e
@@ -31,7 +35,7 @@ set -e
 tail -f /dev/null
 SH
 
-# স্ক্রিপ্টটিকে এক্সিকিউটেবল করা হচ্ছে এবং বাড়তি নিরাপত্তার জন্য যেকোনো \r মুছে ফেলা হচ্ছে
+# স্ক্রিপ্টটিকে এক্সিকিউটেবল করা হচ্ছে
 RUN sed -i 's/\r$//' /start.sh && chmod +x /start.sh
 
 WORKDIR /root
