@@ -1,0 +1,31 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TERM=xterm-256color
+ENV COLORTERM=truecolor
+
+# প্রয়োজনীয় প্যাকেজ ইন্সটল করা হচ্ছে
+RUN apt-get update && apt-get install -y \
+    openssh-server sudo curl wget git nano \
+    && rm -rf /var/lib/apt/lists/*
+
+# SSH ফোল্ডার তৈরি এবং ইউজার/পাসওয়ার্ড সেটআপ
+RUN mkdir /var/run/sshd && \
+    useradd -m -s /bin/bash -u 1000 devuser && \
+    echo "devuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    echo "devuser:123456" | chpasswd && \
+    echo "root:123456" | chpasswd && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
+
+# লোকাল ফোল্ডার থেকে start.sh ফাইলটি কন্টেইনারে কপি করা হচ্ছে
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+USER devuser
+WORKDIR /home/devuser
+
+EXPOSE 22
+
+CMD ["/start.sh"]
